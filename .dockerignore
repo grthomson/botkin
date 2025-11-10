@@ -1,0 +1,25 @@
+# Python cache and venv
+.venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS/editor artifacts
+.vscode/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Repos / versioning
+.git
+.github
+
+# Data, models, and experiments — do NOT send to image build context
+data/
+experiments/
+outputs/
+wandb/
+checkpoints/
+runs/
