@@ -1,31 +1,19 @@
-# ops/Dockerfile
 FROM python:3.11-slim
-
-# System deps (add build tools only if you need to compile libs)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential && \
-    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy metadata first for better caching
-COPY pyproject.toml README.md ./ 
-# Optional: if you create a requirements.txt later, copy it here too:
-# COPY requirements.txt ./
+# Copy metadata first (helps caching when deps don't change)
+COPY pyproject.toml README.md ./
 
-# Install deps (editable install of our src package after copying code below)
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir "uvicorn[standard]" fastapi && \
-    pip install --no-cache-dir -e .
-
-# Now copy source
+# Copy the package source BEFORE installing it
 COPY src ./src
-# If you serve from ops/api:
-# COPY ops/api ./ops/api
 
-ENV PYTHONUNBUFFERED=1 \
-    PORT=8000
+ENV PIP_NO_CACHE_DIR=1 PYTHONUNBUFFERED=1 PORT=8000
+
+# Install runtime deps + your package (editable)
+RUN python -m pip install --upgrade pip && \
+    pip install "uvicorn[standard]" fastapi && \
+    pip install -e .
 
 EXPOSE 8000
-# Adjust import path to wherever your app is (we scaffolded botkin.api.app)
 CMD ["uvicorn", "botkin.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
